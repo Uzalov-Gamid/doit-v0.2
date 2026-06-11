@@ -127,6 +127,11 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'tasks:dashboard'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
