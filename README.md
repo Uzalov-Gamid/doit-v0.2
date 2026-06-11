@@ -87,6 +87,62 @@ http://localhost:8000
 
 Миграции Django выполняются автоматически при старте контейнера `web`.
 
+## Основные страницы
+
+- `http://localhost:8000/accounts/register/` - регистрация;
+- `http://localhost:8000/accounts/login/` - вход;
+- `http://localhost:8000/` - личный кабинет и задачи;
+- `http://localhost:8000/admin/` - Django admin.
+
+## Создание администратора
+
+После запуска контейнеров можно создать администратора:
+
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+Если используется старая форма команды:
+
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+## Проверка проекта
+
+Запуск Django system check:
+
+```bash
+docker compose exec web python manage.py check
+```
+
+Запуск тестов:
+
+```bash
+docker compose exec web python manage.py test accounts tasks activity
+```
+
+Для окружений со старой формой Compose:
+
+```bash
+docker-compose exec web python manage.py check
+docker-compose exec web python manage.py test accounts tasks activity
+```
+
+## Журналирование
+
+В журнал действий записываются:
+
+- регистрация;
+- вход;
+- выход;
+- создание задачи;
+- редактирование задачи;
+- удаление задачи;
+- изменение статуса задачи.
+
+Записи доступны в Django admin в разделе `Журнал действий`.
+
 ## Итоговые материалы для сдачи
 
 - исходный код проекта;
