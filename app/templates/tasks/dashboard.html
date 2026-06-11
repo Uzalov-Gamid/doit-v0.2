@@ -117,6 +117,26 @@
         </article>
       {% endfor %}
     </section>
+
+    {% if is_paginated %}
+      <nav class="pagination" aria-label="Навигация по страницам задач">
+        {% if page_obj.has_previous %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+        {% else %}
+          <span class="pagination-disabled">Назад</span>
+        {% endif %}
+
+        <span class="pagination-status">
+          Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Вперед</a>
+        {% else %}
+          <span class="pagination-disabled">Вперед</span>
+        {% endif %}
+      </nav>
+    {% endif %}
   {% else %}
     <div class="empty-state empty-state-action">
       {% if stats.total %}
