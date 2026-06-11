@@ -9,13 +9,57 @@
       <p class="eyebrow">DoIt v0.2</p>
       <h1>Личный кабинет</h1>
     </div>
-    <span class="role-badge">
-      {% if user.is_staff %}admin{% else %}user{% endif %}
-    </span>
+    <div class="dashboard-actions">
+      <span class="role-badge">
+        {% if user.is_staff %}admin{% else %}user{% endif %}
+      </span>
+      <a class="primary-button button-link" href="{% url 'tasks:task_create' %}">Новая задача</a>
+    </div>
   </div>
-  <div class="empty-state">
-    <h2>Задачи появятся здесь</h2>
-    <p>Создание и управление задачами будет добавлено следующим этапом MVP.</p>
-  </div>
+
+  {% if tasks %}
+    <section class="task-list" aria-label="Список задач">
+      {% for task in tasks %}
+        <article class="task-card">
+          <div class="task-card-header">
+            <div>
+              <h2>{{ task.title }}</h2>
+              <p class="task-meta">
+                {{ task.get_status_display }}
+                {% if task.due_date %} · срок {{ task.due_date|date:"d.m.Y" }}{% endif %}
+              </p>
+            </div>
+            <span class="status-pill status-{{ task.status }}">{{ task.get_status_display }}</span>
+          </div>
+
+          {% if task.description %}
+            <p class="task-description">{{ task.description }}</p>
+          {% endif %}
+
+          <div class="task-controls">
+            <form action="{% url 'tasks:task_status' task.pk %}" method="post" class="status-form">
+              {% csrf_token %}
+              <label for="status-{{ task.pk }}">Статус</label>
+              <select id="status-{{ task.pk }}" name="status">
+                {% for value, label in task.STATUS_CHOICES %}
+                  <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit">Сохранить</button>
+            </form>
+            <div class="task-links">
+              <a href="{% url 'tasks:task_update' task.pk %}">Редактировать</a>
+              <a class="danger-link" href="{% url 'tasks:task_delete' task.pk %}">Удалить</a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <div class="empty-state">
+      <h2>Задач пока нет</h2>
+      <p>Создайте первую задачу, чтобы начать работу со списком.</p>
+    </div>
+  {% endif %}
 </section>
 {% endblock %}
