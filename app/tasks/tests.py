@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from .forms import TaskForm
 from .models import Task
@@ -27,12 +30,13 @@ class TaskModelTests(TestCase):
 
 class TaskFormTests(TestCase):
     def test_task_form_accepts_valid_data(self):
+        future_date = (timezone.localdate() + timedelta(days=7)).isoformat()
         form = TaskForm(
             data={
                 'title': 'Подготовить отчет',
                 'description': 'Учебная практика',
                 'status': Task.STATUS_IN_PROGRESS,
-                'due_date': '2026-06-20',
+                'due_date': future_date,
             }
         )
 
@@ -51,6 +55,32 @@ class TaskFormTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('title', form.errors)
 
+    def test_task_form_rejects_blank_spaces_title(self):
+        form = TaskForm(
+            data={
+                'title': '   ',
+                'description': '',
+                'status': Task.STATUS_NEW,
+                'due_date': '',
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('Введите название задачи.', form.errors['title'])
+
+    def test_task_form_rejects_too_short_title(self):
+        form = TaskForm(
+            data={
+                'title': 'A',
+                'description': '',
+                'status': Task.STATUS_NEW,
+                'due_date': '',
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('Название должно быть не короче 3 символов.', form.errors['title'])
+
     def test_task_form_rejects_unknown_status(self):
         form = TaskForm(
             data={
@@ -63,6 +93,20 @@ class TaskFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
         self.assertIn('status', form.errors)
+
+    def test_task_form_rejects_past_due_date(self):
+        past_date = (timezone.localdate() - timedelta(days=1)).isoformat()
+        form = TaskForm(
+            data={
+                'title': 'Проверить дату',
+                'description': '',
+                'status': Task.STATUS_NEW,
+                'due_date': past_date,
+            }
+        )
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('Срок задачи не может быть в прошлом.', form.errors['due_date'])
 
 
 class DashboardAccessTests(TestCase):
@@ -118,13 +162,14 @@ class TaskCrudTests(TestCase):
         self.client.force_login(self.user)
 
     def test_user_can_create_task(self):
+        future_date = (timezone.localdate() + timedelta(days=7)).isoformat()
         response = self.client.post(
             reverse('tasks:task_create'),
             {
                 'title': 'Подготовить README',
                 'description': 'Описать запуск проекта',
                 'status': Task.STATUS_NEW,
-                'due_date': '2026-06-20',
+                'due_date': future_date,
             },
         )
 
@@ -321,6 +366,7 @@ class TaskPaginationTests(TestCase):
 
 class TasksFrontendTests(TestCase):
     def setUp(self):
+        self.future_date = timezone.localdate() + timedelta(days=7)
         self.user = User.objects.create_user(
             username='student',
             email='student@example.com',
@@ -332,7 +378,7 @@ class TasksFrontendTests(TestCase):
             title='Frontend задача',
             description='Проверить HTML интерфейса',
             status=Task.STATUS_IN_PROGRESS,
-            due_date='2026-06-20',
+            due_date=self.future_date,
         )
 
     def test_dashboard_renders_navigation_profile_filters_and_actions(self):
@@ -370,7 +416,7 @@ class TasksFrontendTests(TestCase):
 
         self.assertContains(response, 'Frontend задача')
         self.assertContains(response, 'В работе')
-        self.assertContains(response, '20.06.2026')
+        self.assertContains(response, self.future_date.strftime('%d.%m.%Y'))
         self.assertContains(response, 'status-in_progress')
 
     def test_task_create_page_renders_form_controls(self):
@@ -381,7 +427,23 @@ class TasksFrontendTests(TestCase):
         self.assertContains(response, 'name="description"')
         self.assertContains(response, 'name="due_date"')
         self.assertContains(response, 'type="date"')
+        self.assertContains(response, 'Например: подготовить отчет')
+        self.assertContains(response, 'Кратко опишите детали задачи')
         self.assertContains(response, reverse('tasks:dashboard'))
+
+    def test_task_create_page_renders_validation_errors(self):
+        response = self.client.post(
+            reverse('tasks:task_create'),
+            {
+                'title': ' ',
+                'description': '',
+                'status': Task.STATUS_NEW,
+                'due_date': '',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Введите название задачи.')
 
     def test_task_update_page_renders_existing_values(self):
         response = self.client.get(reverse('tasks:task_update', args=(self.task.pk,)))
