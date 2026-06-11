@@ -172,6 +172,29 @@ docker compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py createsuperuser
 ```
 
+## Демо-данные
+
+Для быстрой демонстрации можно создать demo-пользователя, demo-администратора, задачи разных статусов и записи журнала:
+
+```bash
+docker-compose exec web python manage.py seed_demo_data
+```
+
+По умолчанию создаются:
+
+- `demo_user`;
+- `demo_admin`;
+- задачи со статусами `Новая`, `В работе`, `Выполнена`;
+- записи журнала действий.
+
+Пароли можно передать явно:
+
+```bash
+docker-compose exec web python manage.py seed_demo_data --user-password DemoUser12345 --admin-password DemoAdmin12345
+```
+
+Для реального проекта такие пароли нужно менять. В учебном проекте они нужны только для локальной демонстрации.
+
 ## Проверка проекта
 
 Запуск Django system check:

@@ -1,11 +1,15 @@
 from datetime import timedelta
+from io import StringIO
 
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.contrib.staticfiles import finders
 from django.test import SimpleTestCase
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+
+from activity.models import ActionLog
 
 from .forms import TaskForm
 from .models import Task
@@ -543,3 +547,33 @@ class StaticFrontendTests(SimpleTestCase):
         self.assertIn('status-form', js)
         self.assertIn('is-submitting', js)
         self.assertIn('message-close', js)
+
+
+class DemoDataCommandTests(TestCase):
+    def test_seed_demo_data_creates_users_tasks_and_logs(self):
+        output = StringIO()
+
+        call_command('seed_demo_data', stdout=output)
+
+        demo_user = User.objects.get(username='demo_user')
+        demo_admin = User.objects.get(username='demo_admin')
+
+        self.assertTrue(demo_user.check_password('DemoUser12345'))
+        self.assertTrue(demo_admin.check_password('DemoAdmin12345'))
+        self.assertTrue(demo_admin.is_staff)
+        self.assertTrue(demo_admin.is_superuser)
+        self.assertEqual(Task.objects.filter(user=demo_user).count(), 3)
+        self.assertTrue(Task.objects.filter(user=demo_user, status=Task.STATUS_NEW).exists())
+        self.assertTrue(Task.objects.filter(user=demo_user, status=Task.STATUS_IN_PROGRESS).exists())
+        self.assertTrue(Task.objects.filter(user=demo_user, status=Task.STATUS_DONE).exists())
+        self.assertEqual(ActionLog.objects.filter(description__startswith='Демо:').count(), 4)
+        self.assertIn('Demo data created.', output.getvalue())
+
+    def test_seed_demo_data_is_idempotent_for_tasks(self):
+        call_command('seed_demo_data', stdout=StringIO())
+        call_command('seed_demo_data', stdout=StringIO())
+
+        demo_user = User.objects.get(username='demo_user')
+
+        self.assertEqual(Task.objects.filter(user=demo_user).count(), 3)
+        self.assertEqual(ActionLog.objects.filter(description__startswith='Демо:').count(), 4)
