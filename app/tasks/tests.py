@@ -266,6 +266,59 @@ class TaskSearchAndStatsTests(TestCase):
         self.assertEqual(len(response.context['tasks']), 3)
 
 
+class TaskPaginationTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='student', password='StrongPass12345')
+        self.client.force_login(self.user)
+
+    def create_tasks(self, count, title_prefix='Задача', status=Task.STATUS_NEW):
+        for index in range(count):
+            Task.objects.create(
+                user=self.user,
+                title=f'{title_prefix} {index + 1}',
+                status=status,
+            )
+
+    def test_dashboard_shows_limited_tasks_on_first_page(self):
+        self.create_tasks(8)
+
+        response = self.client.get(reverse('tasks:dashboard'))
+
+        self.assertEqual(len(response.context['tasks']), 6)
+        self.assertTrue(response.context['is_paginated'])
+        self.assertContains(response, 'Страница 1 из 2')
+        self.assertContains(response, 'Вперед')
+
+    def test_dashboard_shows_remaining_tasks_on_second_page(self):
+        self.create_tasks(8)
+
+        response = self.client.get(reverse('tasks:dashboard'), {'page': 2})
+
+        self.assertEqual(len(response.context['tasks']), 2)
+        self.assertEqual(response.context['page_obj'].number, 2)
+        self.assertFalse(response.context['page_obj'].has_next())
+        self.assertContains(response, 'Страница 2 из 2')
+
+    def test_pagination_keeps_search_and_status_filters(self):
+        self.create_tasks(7, title_prefix='project', status=Task.STATUS_NEW)
+        Task.objects.create(user=self.user, title='project done', status=Task.STATUS_DONE)
+
+        response = self.client.get(
+            reverse('tasks:dashboard'),
+            {'q': 'project', 'status': Task.STATUS_NEW},
+        )
+
+        self.assertEqual(response.context['page_query'], 'q=project&status=new')
+        self.assertContains(response, '?q=project&amp;status=new&amp;page=2')
+
+    def test_page_out_of_range_uses_last_page(self):
+        self.create_tasks(8)
+
+        response = self.client.get(reverse('tasks:dashboard'), {'page': 99})
+
+        self.assertEqual(response.context['page_obj'].number, 2)
+
+
 class TasksFrontendTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
@@ -376,6 +429,8 @@ class StaticFrontendTests(SimpleTestCase):
         self.assertIn('.empty-actions', css)
         self.assertIn('.filter-field', css)
         self.assertIn('.message-error', css)
+        self.assertIn('.pagination', css)
+        self.assertIn('.pagination-status', css)
 
     def test_js_file_exists_and_contains_form_helpers(self):
         js_path = finders.find('js/app.js')

@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
@@ -12,6 +13,8 @@ from activity.services import log_action
 
 from .forms import TaskForm
 from .models import Task
+
+TASKS_PER_PAGE = 6
 
 
 @login_required
@@ -27,6 +30,12 @@ def dashboard(request):
     if status in dict(Task.STATUS_CHOICES):
         tasks = tasks.filter(status=status)
 
+    paginator = Paginator(tasks, TASKS_PER_PAGE)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    page_query_params = request.GET.copy()
+    page_query_params.pop('page', None)
+    page_query = page_query_params.urlencode()
+
     stats = {
         'total': base_tasks.count(),
         'new': base_tasks.filter(status=Task.STATUS_NEW).count(),
@@ -35,7 +44,10 @@ def dashboard(request):
     }
 
     context = {
-        'tasks': tasks,
+        'tasks': page_obj.object_list,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'page_query': page_query,
         'stats': stats,
         'query': query,
         'selected_status': status,

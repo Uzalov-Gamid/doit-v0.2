@@ -494,6 +494,31 @@ textarea:focus-visible {
     gap: 16px;
 }
 
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.pagination-status,
+.pagination-disabled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 6px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.pagination-disabled {
+    background: #eef1f6;
+    border: 1px solid var(--line);
+}
+
 .task-card {
     display: grid;
     gap: 18px;
@@ -668,7 +693,8 @@ form.is-submitting button[type="submit"] {
     .site-nav,
     .dashboard-actions,
     .form-actions,
-    .empty-actions {
+    .empty-actions,
+    .pagination {
         flex-wrap: wrap;
     }
 
@@ -712,6 +738,16 @@ form.is-submitting button[type="submit"] {
     }
 
     .empty-actions {
+        width: 100%;
+    }
+
+    .pagination {
+        justify-content: stretch;
+    }
+
+    .pagination .secondary-button,
+    .pagination-disabled,
+    .pagination-status {
         width: 100%;
     }
 
