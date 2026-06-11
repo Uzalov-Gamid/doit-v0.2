@@ -216,6 +216,20 @@ docker-compose exec web python manage.py check
 docker-compose exec web python manage.py test accounts tasks activity
 ```
 
+## CI
+
+В репозитории настроен GitHub Actions workflow `.github/workflows/django-tests.yml`.
+
+Он запускается на `push` и `pull_request` в ветки `develop` и `main`, поднимает PostgreSQL 16 и выполняет:
+
+```bash
+python app/manage.py migrate --noinput
+python app/manage.py check
+python app/manage.py test accounts tasks activity
+```
+
+Workflow использует только учебные переменные окружения внутри CI и не требует GitHub Secrets.
+
 ## Настройки безопасности
 
 Основные настройки задаются через `.env`:

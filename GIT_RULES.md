@@ -157,6 +157,20 @@ docker-compose exec web python manage.py check
 docker-compose exec web python manage.py test accounts tasks activity
 ```
 
+## GitHub Actions
+
+Автоматические проверки описаны в `.github/workflows/django-tests.yml`.
+
+Workflow запускается на `push` и `pull_request` в ветки `develop` и `main` и выполняет:
+
+```bash
+python app/manage.py migrate --noinput
+python app/manage.py check
+python app/manage.py test accounts tasks activity
+```
+
+После merge в `develop` нужно проверить, что GitHub Actions завершился успешно. Перед релизным merge в `main` CI также должен быть зеленым.
+
 ## GitHub Issues
 
 Для проекта используются подробные GitHub Issues. Лучше создать больше небольших и понятных Issues, чем держать задачи в голове.
