@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация - DoIt v0.2{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-panel">
+    <h1>Регистрация</h1>
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label for="{{ form.username.id_for_label }}">Логин</label>
+      {{ form.username }}
+      {{ form.username.errors }}
+
+      <label for="{{ form.email.id_for_label }}">Email</label>
+      {{ form.email }}
+      {{ form.email.errors }}
+
+      <label for="{{ form.password1.id_for_label }}">Пароль</label>
+      {{ form.password1 }}
+      {{ form.password1.errors }}
+
+      <label for="{{ form.password2.id_for_label }}">Повтор пароля</label>
+      {{ form.password2 }}
+      {{ form.password2.errors }}
+
+      <button class="primary-button" type="submit">Создать аккаунт</button>
+    </form>
+    <p class="auth-switch">Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
+  </div>
+</section>
+{% endblock %}
