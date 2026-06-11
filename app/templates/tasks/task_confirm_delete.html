@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Удаление задачи - DoIt v0.2{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <div class="auth-panel task-form-panel">
+    <h1>Удаление задачи</h1>
+    <p class="confirm-text">Удалить задачу «{{ object.title }}»?</p>
+    <form method="post" class="form">
+      {% csrf_token %}
+      <div class="form-actions">
+        <button class="danger-button" type="submit">Удалить</button>
+        <a class="secondary-button" href="{% url 'tasks:dashboard' %}">Отмена</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

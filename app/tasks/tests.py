@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from .models import Task
+
 
 class DashboardAccessTests(TestCase):
     def test_dashboard_requires_login(self):
@@ -17,3 +19,81 @@ class DashboardAccessTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Личный кабинет')
+
+    def test_user_sees_only_own_tasks(self):
+        user = User.objects.create_user(username='student', password='StrongPass12345')
+        other = User.objects.create_user(username='other', password='StrongPass12345')
+        Task.objects.create(user=user, title='Моя задача')
+        Task.objects.create(user=other, title='Чужая задача')
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('tasks:dashboard'))
+
+        self.assertContains(response, 'Моя задача')
+        self.assertNotContains(response, 'Чужая задача')
+
+
+class TaskCrudTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='student', password='StrongPass12345')
+        self.client.force_login(self.user)
+
+    def test_user_can_create_task(self):
+        response = self.client.post(
+            reverse('tasks:task_create'),
+            {
+                'title': 'Подготовить README',
+                'description': 'Описать запуск проекта',
+                'status': Task.STATUS_NEW,
+                'due_date': '2026-06-20',
+            },
+        )
+
+        self.assertRedirects(response, reverse('tasks:dashboard'))
+        self.assertTrue(Task.objects.filter(user=self.user, title='Подготовить README').exists())
+
+    def test_user_can_update_task(self):
+        task = Task.objects.create(user=self.user, title='Старая задача')
+
+        response = self.client.post(
+            reverse('tasks:task_update', args=(task.pk,)),
+            {
+                'title': 'Обновленная задача',
+                'description': '',
+                'status': Task.STATUS_IN_PROGRESS,
+                'due_date': '',
+            },
+        )
+
+        task.refresh_from_db()
+        self.assertRedirects(response, reverse('tasks:dashboard'))
+        self.assertEqual(task.title, 'Обновленная задача')
+        self.assertEqual(task.status, Task.STATUS_IN_PROGRESS)
+
+    def test_user_can_delete_task(self):
+        task = Task.objects.create(user=self.user, title='Удалить задачу')
+
+        response = self.client.post(reverse('tasks:task_delete', args=(task.pk,)))
+
+        self.assertRedirects(response, reverse('tasks:dashboard'))
+        self.assertFalse(Task.objects.filter(pk=task.pk).exists())
+
+    def test_user_can_change_status(self):
+        task = Task.objects.create(user=self.user, title='Сменить статус')
+
+        response = self.client.post(
+            reverse('tasks:task_status', args=(task.pk,)),
+            {'status': Task.STATUS_DONE},
+        )
+
+        task.refresh_from_db()
+        self.assertRedirects(response, reverse('tasks:dashboard'))
+        self.assertEqual(task.status, Task.STATUS_DONE)
+
+    def test_user_cannot_update_another_user_task(self):
+        other = User.objects.create_user(username='other', password='StrongPass12345')
+        task = Task.objects.create(user=other, title='Чужая задача')
+
+        response = self.client.get(reverse('tasks:task_update', args=(task.pk,)))
+
+        self.assertEqual(response.status_code, 404)

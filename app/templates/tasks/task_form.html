@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}Редактирование задачи{% else %}Новая задача{% endif %} - DoIt v0.2
+{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <div class="auth-panel task-form-panel">
+    <h1>{% if object %}Редактирование задачи{% else %}Новая задача{% endif %}</h1>
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label for="{{ form.title.id_for_label }}">Название</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+
+      <label for="{{ form.description.id_for_label }}">Описание</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+
+      <label for="{{ form.status.id_for_label }}">Статус</label>
+      {{ form.status }}
+      {{ form.status.errors }}
+
+      <label for="{{ form.due_date.id_for_label }}">Срок</label>
+      {{ form.due_date }}
+      {{ form.due_date.errors }}
+
+      <div class="form-actions">
+        <button class="primary-button" type="submit">Сохранить</button>
+        <a class="secondary-button" href="{% url 'tasks:dashboard' %}">Отмена</a>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
