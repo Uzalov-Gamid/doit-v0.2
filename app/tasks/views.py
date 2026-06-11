@@ -7,6 +7,9 @@ from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, DeleteView, UpdateView
 
+from activity.models import ActionLog
+from activity.services import log_action
+
 from .forms import TaskForm
 from .models import Task
 
@@ -57,7 +60,13 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         messages.success(self.request, 'Задача создана.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        log_action(
+            self.request.user,
+            ActionLog.ACTION_TASK_CREATE,
+            f'Создана задача: {self.object.title}',
+        )
+        return response
 
 
 class TaskUpdateView(UserTaskMixin, UpdateView):
@@ -67,7 +76,13 @@ class TaskUpdateView(UserTaskMixin, UpdateView):
 
     def form_valid(self, form):
         messages.success(self.request, 'Задача обновлена.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        log_action(
+            self.request.user,
+            ActionLog.ACTION_TASK_UPDATE,
+            f'Обновлена задача: {self.object.title}',
+        )
+        return response
 
 
 class TaskDeleteView(UserTaskMixin, DeleteView):
@@ -75,8 +90,15 @@ class TaskDeleteView(UserTaskMixin, DeleteView):
     success_url = reverse_lazy('tasks:dashboard')
 
     def form_valid(self, form):
+        title = self.object.title
         messages.success(self.request, 'Задача удалена.')
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        log_action(
+            self.request.user,
+            ActionLog.ACTION_TASK_DELETE,
+            f'Удалена задача: {title}',
+        )
+        return response
 
 
 @login_required
@@ -86,8 +108,14 @@ def change_task_status(request, pk):
     status = request.POST.get('status')
 
     if status in dict(Task.STATUS_CHOICES):
+        old_status = task.get_status_display()
         task.status = status
         task.save(update_fields=('status', 'updated_at'))
+        log_action(
+            request.user,
+            ActionLog.ACTION_STATUS_CHANGE,
+            f'Статус задачи "{task.title}" изменен: {old_status} -> {task.get_status_display()}',
+        )
         messages.success(request, 'Статус задачи обновлен.')
     else:
         messages.error(request, 'Некорректный статус задачи.')
