@@ -20,6 +20,28 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+a,
+button,
+input,
+select,
+textarea {
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+a:hover,
+.link-button:hover {
+    color: #1645ad;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #9cc2ff;
+    outline-offset: 2px;
+}
+
 .site-header {
     display: flex;
     align-items: center;
@@ -87,6 +109,12 @@ body {
     color: #1f6f43;
 }
 
+.message-error {
+    background: #fff1f0;
+    border-color: #fecdca;
+    color: #b42318;
+}
+
 .auth-layout {
     display: grid;
     place-items: start center;
@@ -126,6 +154,20 @@ body {
     font: inherit;
 }
 
+.form textarea {
+    resize: vertical;
+}
+
+.form input:focus,
+.form select:focus,
+.form textarea:focus,
+.filter-bar input:focus,
+.filter-bar select:focus,
+.status-form select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px #dbeafe;
+}
+
 .form ul {
     margin: 0;
     padding-left: 20px;
@@ -147,6 +189,11 @@ body {
     cursor: pointer;
     font: inherit;
     font-weight: 700;
+}
+
+.primary-button:hover,
+.filter-bar button:hover {
+    background: #1d4ed8;
 }
 
 .button-link {
@@ -171,6 +218,12 @@ body {
     background: #ffffff;
     border: 1px solid var(--line);
     color: var(--text);
+}
+
+.secondary-button:hover,
+.status-form button:hover {
+    border-color: #b8c2d6;
+    background: #f8fafc;
 }
 
 .danger-button {
@@ -230,6 +283,10 @@ body {
     border-radius: 999px;
     color: #174ea6;
     font-weight: 700;
+}
+
+.danger-button:hover {
+    background: #b42318;
 }
 
 .profile-summary {
@@ -333,6 +390,9 @@ body {
 }
 
 .filter-bar a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
     color: var(--accent);
     text-decoration: none;
 }
@@ -383,6 +443,7 @@ body {
 .task-card h2 {
     margin: 0;
     font-size: 22px;
+    overflow-wrap: anywhere;
 }
 
 .task-meta {
@@ -395,6 +456,7 @@ body {
     margin: 0;
     color: var(--text);
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .status-pill {
@@ -439,6 +501,11 @@ body {
     flex-wrap: wrap;
 }
 
+.status-form.is-dirty button {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
 .status-form label {
     color: var(--muted);
     font-size: 14px;
@@ -466,6 +533,7 @@ body {
 .task-links {
     display: flex;
     gap: 12px;
+    white-space: nowrap;
 }
 
 .task-links a {
@@ -497,6 +565,27 @@ body {
     color: var(--muted);
 }
 
+form.is-submitting button[type="submit"] {
+    opacity: 0.72;
+    pointer-events: none;
+}
+
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .filter-bar {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .filter-bar button,
+    .filter-bar a {
+        grid-column: 2;
+        width: fit-content;
+    }
+}
+
 @media (max-width: 640px) {
     .site-header,
     .dashboard-header,
@@ -513,12 +602,14 @@ body {
         flex-wrap: wrap;
     }
 
-    .stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .filter-bar {
         grid-template-columns: 1fr;
+    }
+
+    .filter-bar button,
+    .filter-bar a {
+        grid-column: auto;
+        width: 100%;
     }
 
     .profile-details {
@@ -533,5 +624,35 @@ body {
     .auth-panel,
     .empty-state {
         padding: 22px;
+    }
+
+    .task-links,
+    .form-actions {
+        width: 100%;
+    }
+
+    .task-links {
+        justify-content: space-between;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .danger-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .site-header {
+        padding: 16px;
+    }
+
+    .empty-state h2,
+    .task-card h2 {
+        font-size: 21px;
     }
 }
