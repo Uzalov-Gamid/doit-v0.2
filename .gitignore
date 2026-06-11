@@ -1,0 +1,44 @@
+# Local prompts and task drafts
+01-codex-start-project-prompt.md
+02-technical-specification-django.md
+03-github-gh-setup-prompt.md
+*-prompt.md
+local-prompts/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# Docker
+.docker/
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+
+# Database dumps
+*.dump
+*.sql
+*.sqlite3
