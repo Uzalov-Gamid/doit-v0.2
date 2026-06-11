@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
+from activity.models import ActionLog
+from activity.services import log_action
+
 from .forms import RegistrationForm
 
 
@@ -15,6 +18,7 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        log_action(self.object, ActionLog.ACTION_REGISTER, 'Пользователь зарегистрировался.')
         login(self.request, self.object)
         messages.success(self.request, 'Регистрация завершена.')
         return response
