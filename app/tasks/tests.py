@@ -12,13 +12,32 @@ class DashboardAccessTests(TestCase):
         self.assertRedirects(response, f"{reverse('accounts:login')}?next=/")
 
     def test_logged_user_can_open_dashboard(self):
-        user = User.objects.create_user(username='student', password='StrongPass12345')
+        user = User.objects.create_user(
+            username='student',
+            email='student@example.com',
+            password='StrongPass12345',
+        )
         self.client.force_login(user)
 
         response = self.client.get(reverse('tasks:dashboard'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Личный кабинет')
+        self.assertContains(response, 'student@example.com')
+        self.assertContains(response, 'user')
+
+    def test_staff_user_sees_admin_role_and_link(self):
+        admin = User.objects.create_user(
+            username='admin',
+            password='StrongPass12345',
+            is_staff=True,
+        )
+        self.client.force_login(admin)
+
+        response = self.client.get(reverse('tasks:dashboard'))
+
+        self.assertContains(response, 'admin')
+        self.assertContains(response, '/admin/')
 
     def test_user_sees_only_own_tasks(self):
         user = User.objects.create_user(username='student', password='StrongPass12345')
