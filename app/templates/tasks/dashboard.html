@@ -34,7 +34,10 @@
       </div>
     </dl>
     {% if user.is_staff %}
-      <a class="secondary-button" href="/admin/">Django admin</a>
+      <div class="profile-actions">
+        <a class="secondary-button" href="{% url 'activity:action_log_list' %}">Журнал действий</a>
+        <a class="secondary-button" href="/admin/">Django admin</a>
+      </div>
     {% endif %}
   </section>
 
@@ -58,20 +61,24 @@
   </section>
 
   <form class="filter-bar" method="get">
-    <label for="task-search">Поиск</label>
-    <input id="task-search" type="search" name="q" value="{{ query }}" placeholder="Название или описание">
+    <div class="filter-field filter-field-search">
+      <label for="task-search">Поиск</label>
+      <input id="task-search" type="search" name="q" value="{{ query }}" placeholder="Название или описание">
+    </div>
 
-    <label for="task-status">Статус</label>
-    <select id="task-status" name="status">
-      <option value="">Все статусы</option>
-      {% for value, label in status_choices %}
-        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+    <div class="filter-field">
+      <label for="task-status">Статус</label>
+      <select id="task-status" name="status">
+        <option value="">Все статусы</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
     <button type="submit">Показать</button>
     {% if query or selected_status %}
-      <a href="{% url 'tasks:dashboard' %}">Сбросить</a>
+      <a class="filter-reset" href="{% url 'tasks:dashboard' %}">Сбросить</a>
     {% endif %}
   </form>
 
@@ -113,10 +120,44 @@
         </article>
       {% endfor %}
     </section>
+
+    {% if is_paginated %}
+      <nav class="pagination" aria-label="Навигация по страницам задач">
+        {% if page_obj.has_previous %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+        {% else %}
+          <span class="pagination-disabled">Назад</span>
+        {% endif %}
+
+        <span class="pagination-status">
+          Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Вперед</a>
+        {% else %}
+          <span class="pagination-disabled">Вперед</span>
+        {% endif %}
+      </nav>
+    {% endif %}
   {% else %}
-    <div class="empty-state">
-      <h2>Задач пока нет</h2>
-      <p>Создайте первую задачу, чтобы начать работу со списком.</p>
+    <div class="empty-state empty-state-action">
+      {% if stats.total %}
+        <p class="eyebrow">Ничего не найдено</p>
+        <h2>Нет задач по выбранным условиям</h2>
+        <p>Попробуйте изменить поисковый запрос или сбросить фильтр статуса.</p>
+        <div class="empty-actions">
+          <a class="primary-button button-link" href="{% url 'tasks:dashboard' %}">Сбросить фильтры</a>
+          <a class="secondary-button" href="{% url 'tasks:task_create' %}">Создать задачу</a>
+        </div>
+      {% else %}
+        <p class="eyebrow">Начало работы</p>
+        <h2>Задач пока нет</h2>
+        <p>Создайте первую задачу, чтобы увидеть список, статистику и быстрые действия.</p>
+        <div class="empty-actions">
+          <a class="primary-button button-link" href="{% url 'tasks:task_create' %}">Создать первую задачу</a>
+        </div>
+      {% endif %}
     </div>
   {% endif %}
 </section>

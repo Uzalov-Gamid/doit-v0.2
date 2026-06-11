@@ -29,3 +29,11 @@ class AccountsAuthTests(TestCase):
 
         self.assertRedirects(response, reverse('tasks:dashboard'))
         self.assertTrue(User.objects.filter(username='student').exists())
+
+    def test_login_redirects_authenticated_user_to_dashboard(self):
+        user = User.objects.create_user(username='student', password='StrongPass12345')
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('accounts:login'))
+
+        self.assertRedirects(response, reverse('tasks:dashboard'))

@@ -87,6 +87,70 @@ http://localhost:8000
 
 Миграции Django выполняются автоматически при старте контейнера `web`.
 
+## Быстрый запуск для новичка
+
+Если Docker уже установлен:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+После запуска открыть:
+
+```text
+http://localhost:8000
+```
+
+Если команда `docker compose` недоступна, использовать вариант с дефисом:
+
+```bash
+docker-compose up --build
+```
+
+Остановить проект:
+
+```bash
+docker compose down
+```
+
+или:
+
+```bash
+docker-compose down
+```
+
+## Git-процесс после MVP
+
+После появления MVP используется ветка `develop`:
+
+- `main` - стабильная версия;
+- `develop` - рабочая ветка;
+- `feature/*` - новые задачи от `develop`;
+- `fix/*` - исправления от `develop`.
+
+Обычный порядок работы:
+
+```bash
+git switch develop
+git pull
+git switch -c feature/example-task
+```
+
+После выполнения задачи:
+
+```bash
+git add .
+git commit -m "feat: добавить пример функции"
+git switch develop
+git merge --no-ff feature/example-task -m "merge: добавить пример функции"
+git push origin develop
+git branch -d feature/example-task
+git push origin --delete feature/example-task
+```
+
+Перед началом задачи создается подробный GitHub Issue с целью, чеклистом, критериями готовности и командами проверки. После выполнения Issue закрывается, а feature/fix-ветка удаляется.
+
 ## Основные страницы
 
 - `http://localhost:8000/accounts/register/` - регистрация;
@@ -107,6 +171,29 @@ docker compose exec web python manage.py createsuperuser
 ```bash
 docker-compose exec web python manage.py createsuperuser
 ```
+
+## Демо-данные
+
+Для быстрой демонстрации можно создать demo-пользователя, demo-администратора, задачи разных статусов и записи журнала:
+
+```bash
+docker-compose exec web python manage.py seed_demo_data
+```
+
+По умолчанию создаются:
+
+- `demo_user`;
+- `demo_admin`;
+- задачи со статусами `Новая`, `В работе`, `Выполнена`;
+- записи журнала действий.
+
+Пароли можно передать явно:
+
+```bash
+docker-compose exec web python manage.py seed_demo_data --user-password DemoUser12345 --admin-password DemoAdmin12345
+```
+
+Для реального проекта такие пароли нужно менять. В учебном проекте они нужны только для локальной демонстрации.
 
 ## Проверка проекта
 
@@ -129,6 +216,36 @@ docker-compose exec web python manage.py check
 docker-compose exec web python manage.py test accounts tasks activity
 ```
 
+## CI
+
+В репозитории настроен GitHub Actions workflow `.github/workflows/django-tests.yml`.
+
+Он запускается на `push` и `pull_request` в ветки `develop` и `main`, поднимает PostgreSQL 16 и выполняет:
+
+```bash
+python app/manage.py migrate --noinput
+python app/manage.py check
+python app/manage.py test accounts tasks activity
+```
+
+Workflow использует только учебные переменные окружения внутри CI и не требует GitHub Secrets.
+
+## Настройки безопасности
+
+Основные настройки задаются через `.env`:
+
+- `DJANGO_SECRET_KEY` - секретный ключ Django, в реальном проекте должен быть уникальным;
+- `DJANGO_DEBUG` - режим отладки, для сдачи и локальной разработки может быть `True`;
+- `DJANGO_ALLOWED_HOSTS` - список разрешенных хостов через запятую;
+- `POSTGRES_PASSWORD` - пароль пользователя PostgreSQL.
+
+В проекте включены базовые cookie-настройки:
+
+- `SESSION_COOKIE_HTTPONLY=True`;
+- `CSRF_COOKIE_HTTPONLY=True`;
+- `SESSION_COOKIE_SAMESITE=Lax`;
+- `CSRF_COOKIE_SAMESITE=Lax`.
+
 ## Журналирование
 
 В журнал действий записываются:
@@ -143,11 +260,20 @@ docker-compose exec web python manage.py test accounts tasks activity
 
 Записи доступны в Django admin в разделе `Журнал действий`.
 
+## Релиз MVP v0.2
+
+Стабильная MVP-версия отмечается тегом `v0.2-mvp`.
+
+Описание релиза и список вошедших возможностей: `docs/release-v0.2.md`.
+
 ## Итоговые материалы для сдачи
 
 - исходный код проекта;
 - README с инструкцией запуска;
 - техническое задание;
+- сценарий демонстрации: `docs/demo-scenario.md`;
+- проверка чистого Docker-запуска: `docs/docker-clean-check.md`;
+- описание релиза MVP v0.2: `docs/release-v0.2.md`;
 - GitHub-репозиторий с историей коммитов;
 - список задач в GitHub Issues;
 - демонстрация работы MVP.

@@ -1,11 +1,20 @@
 :root {
     color-scheme: light;
-    --page-bg: #f5f7fb;
+    --page-bg: #f4f6fa;
     --text: #20242c;
     --muted: #5b6472;
     --panel: #ffffff;
     --line: #d9dee8;
     --accent: #2563eb;
+    --accent-strong: #1d4ed8;
+    --success-bg: #e8f7ee;
+    --success-line: #b7e4c7;
+    --success-text: #1f6f43;
+    --warning-bg: #fff6db;
+    --warning-text: #8a5a00;
+    --danger-bg: #fff1f0;
+    --danger-line: #fecdca;
+    --danger-text: #b42318;
 }
 
 * {
@@ -101,18 +110,56 @@ textarea:focus-visible {
 }
 
 .message {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr) 32px;
+    align-items: center;
+    gap: 12px;
     margin: 0;
-    padding: 12px 14px;
-    background: #e8f7ee;
-    border: 1px solid #b7e4c7;
+    padding: 12px;
+    background: var(--success-bg);
+    border: 1px solid var(--success-line);
     border-radius: 8px;
-    color: #1f6f43;
+    color: var(--success-text);
+}
+
+.message p {
+    margin: 0;
+}
+
+.message-marker {
+    width: 10px;
+    height: 10px;
+    background: currentColor;
+    border-radius: 999px;
+}
+
+.message-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: currentColor;
+    cursor: pointer;
+    font: inherit;
+    font-size: 20px;
+    line-height: 1;
 }
 
 .message-error {
-    background: #fff1f0;
-    border-color: #fecdca;
-    color: #b42318;
+    background: var(--danger-bg);
+    border-color: var(--danger-line);
+    color: var(--danger-text);
+}
+
+.message-warning {
+    background: var(--warning-bg);
+    border-color: #ffe08a;
+    color: var(--warning-text);
 }
 
 .auth-layout {
@@ -193,7 +240,7 @@ textarea:focus-visible {
 
 .primary-button:hover,
 .filter-bar button:hover {
-    background: #1d4ed8;
+    background: var(--accent-strong);
 }
 
 .button-link {
@@ -286,7 +333,7 @@ textarea:focus-visible {
 }
 
 .danger-button:hover {
-    background: #b42318;
+    background: var(--danger-text);
 }
 
 .profile-summary {
@@ -328,6 +375,12 @@ textarea:focus-visible {
     font-weight: 700;
 }
 
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -354,8 +407,8 @@ textarea:focus-visible {
 
 .filter-bar {
     display: grid;
-    grid-template-columns: auto minmax(180px, 1fr) auto minmax(160px, 220px) auto auto;
-    align-items: center;
+    grid-template-columns: minmax(220px, 1fr) minmax(160px, 220px) auto auto;
+    align-items: end;
     gap: 10px;
     padding: 16px;
     background: var(--panel);
@@ -363,8 +416,14 @@ textarea:focus-visible {
     border-radius: 8px;
 }
 
+.filter-field {
+    display: grid;
+    gap: 6px;
+}
+
 .filter-bar label {
     color: var(--muted);
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -392,7 +451,9 @@ textarea:focus-visible {
 .filter-bar a {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 40px;
+    padding: 0 10px;
     color: var(--accent);
     text-decoration: none;
 }
@@ -402,6 +463,14 @@ textarea:focus-visible {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 8px;
+}
+
+.empty-state-action {
+    display: grid;
+    gap: 12px;
+    place-items: start;
+    min-height: 220px;
+    align-content: center;
 }
 
 .empty-state h1 {
@@ -419,9 +488,41 @@ textarea:focus-visible {
     color: var(--muted);
 }
 
+.empty-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
 .task-list {
     display: grid;
     gap: 16px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 4px 0;
+}
+
+.pagination-status,
+.pagination-disabled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 6px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.pagination-disabled {
+    background: #eef1f6;
+    border: 1px solid var(--line);
 }
 
 .task-card {
@@ -476,13 +577,13 @@ textarea:focus-visible {
 }
 
 .status-in_progress {
-    background: #fff6db;
-    color: #8a5a00;
+    background: var(--warning-bg);
+    color: var(--warning-text);
 }
 
 .status-done {
-    background: #e8f7ee;
-    color: #1f6f43;
+    background: var(--success-bg);
+    color: var(--success-text);
 }
 
 .task-controls {
@@ -542,7 +643,7 @@ textarea:focus-visible {
 }
 
 .task-links .danger-link {
-    color: #b42318;
+    color: var(--danger-text);
 }
 
 .form-page {
@@ -565,6 +666,42 @@ textarea:focus-visible {
     color: var(--muted);
 }
 
+.log-page {
+    display: grid;
+    gap: 20px;
+}
+
+.log-table-wrap {
+    overflow-x: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.log-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.log-table th {
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.log-table tr:last-child td {
+    border-bottom: 0;
+}
+
 form.is-submitting button[type="submit"] {
     opacity: 0.72;
     pointer-events: none;
@@ -576,13 +713,12 @@ form.is-submitting button[type="submit"] {
     }
 
     .filter-bar {
-        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) minmax(160px, 220px);
     }
 
     .filter-bar button,
-    .filter-bar a {
-        grid-column: 2;
-        width: fit-content;
+    .filter-reset {
+        width: 100%;
     }
 }
 
@@ -598,7 +734,9 @@ form.is-submitting button[type="submit"] {
 
     .site-nav,
     .dashboard-actions,
-    .form-actions {
+    .form-actions,
+    .empty-actions,
+    .pagination {
         flex-wrap: wrap;
     }
 
@@ -615,6 +753,10 @@ form.is-submitting button[type="submit"] {
     .profile-details {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .profile-actions {
+        width: 100%;
     }
 
     .page {
@@ -639,6 +781,24 @@ form.is-submitting button[type="submit"] {
     .secondary-button,
     .danger-button {
         width: 100%;
+    }
+
+    .empty-actions {
+        width: 100%;
+    }
+
+    .pagination {
+        justify-content: stretch;
+    }
+
+    .pagination .secondary-button,
+    .pagination-disabled,
+    .pagination-status {
+        width: 100%;
+    }
+
+    .message {
+        grid-template-columns: 8px minmax(0, 1fr) 32px;
     }
 }
 

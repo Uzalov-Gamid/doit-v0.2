@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Журнал действий - DoIt v0.2{% endblock %}
+
+{% block content %}
+<section class="log-page">
+  <div class="dashboard-header">
+    <div>
+      <p class="eyebrow">Администрирование</p>
+      <h1>Журнал действий</h1>
+    </div>
+    <a class="secondary-button" href="{% url 'tasks:dashboard' %}">В кабинет</a>
+  </div>
+
+  <form class="filter-bar" method="get">
+    <div class="filter-field">
+      <label for="action-type">Тип действия</label>
+      <select id="action-type" name="action_type">
+        <option value="">Все действия</option>
+        {% for value, label in action_choices %}
+          <option value="{{ value }}" {% if selected_action_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit">Показать</button>
+    {% if selected_action_type %}
+      <a class="filter-reset" href="{% url 'activity:action_log_list' %}">Сбросить</a>
+    {% endif %}
+  </form>
+
+  {% if logs %}
+    <div class="log-table-wrap">
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Пользователь</th>
+            <th>Действие</th>
+            <th>Описание</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr>
+              <td>{{ log.created_at|date:"d.m.Y H:i" }}</td>
+              <td>{% if log.user %}{{ log.user.username }}{% else %}deleted-user{% endif %}</td>
+              <td>{{ log.get_action_type_display }}</td>
+              <td>{{ log.description|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if is_paginated %}
+      <nav class="pagination" aria-label="Навигация по страницам журнала">
+        {% if page_obj.has_previous %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+        {% else %}
+          <span class="pagination-disabled">Назад</span>
+        {% endif %}
+
+        <span class="pagination-status">
+          Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a class="secondary-button" href="?{% if page_query %}{{ page_query }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Вперед</a>
+        {% else %}
+          <span class="pagination-disabled">Вперед</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <div class="empty-state empty-state-action">
+      <p class="eyebrow">Журнал пуст</p>
+      <h2>Записей пока нет</h2>
+      <p>Действия появятся здесь после регистрации, входа и работы с задачами.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
