@@ -145,7 +145,11 @@ git commit -m "feat: добавить пример функции"
 git switch develop
 git merge --no-ff feature/example-task -m "merge: добавить пример функции"
 git push origin develop
+git branch -d feature/example-task
+git push origin --delete feature/example-task
 ```
+
+Перед началом задачи создается подробный GitHub Issue с целью, чеклистом, критериями готовности и командами проверки. После выполнения Issue закрывается, а feature/fix-ветка удаляется.
 
 ## Основные страницы
 
