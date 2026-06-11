@@ -87,6 +87,66 @@ http://localhost:8000
 
 Миграции Django выполняются автоматически при старте контейнера `web`.
 
+## Быстрый запуск для новичка
+
+Если Docker уже установлен:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+После запуска открыть:
+
+```text
+http://localhost:8000
+```
+
+Если команда `docker compose` недоступна, использовать вариант с дефисом:
+
+```bash
+docker-compose up --build
+```
+
+Остановить проект:
+
+```bash
+docker compose down
+```
+
+или:
+
+```bash
+docker-compose down
+```
+
+## Git-процесс после MVP
+
+После появления MVP используется ветка `develop`:
+
+- `main` - стабильная версия;
+- `develop` - рабочая ветка;
+- `feature/*` - новые задачи от `develop`;
+- `fix/*` - исправления от `develop`.
+
+Обычный порядок работы:
+
+```bash
+git switch develop
+git pull
+git switch -c feature/example-task
+```
+
+После выполнения задачи:
+
+```bash
+git add .
+git commit -m "feat: добавить пример функции"
+git switch develop
+git merge --no-ff feature/example-task -m "merge: добавить пример функции"
+git push origin develop
+```
+
 ## Основные страницы
 
 - `http://localhost:8000/accounts/register/` - регистрация;
