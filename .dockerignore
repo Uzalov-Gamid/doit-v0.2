@@ -1,0 +1,14 @@
+.git
+.venv
+**pycache**
+_.pyc
+.env
+.env._
+!.env.example
+01-codex-start-project-prompt.md
+02-technical-specification-django.md
+03-github-gh-setup-prompt.md
+local-prompts/
+db.sqlite3
+media/
+staticfiles/
