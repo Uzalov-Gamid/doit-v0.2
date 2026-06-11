@@ -34,7 +34,10 @@
       </div>
     </dl>
     {% if user.is_staff %}
-      <a class="secondary-button" href="/admin/">Django admin</a>
+      <div class="profile-actions">
+        <a class="secondary-button" href="{% url 'activity:action_log_list' %}">Журнал действий</a>
+        <a class="secondary-button" href="/admin/">Django admin</a>
+      </div>
     {% endif %}
   </section>
 
