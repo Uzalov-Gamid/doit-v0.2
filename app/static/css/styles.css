@@ -375,6 +375,12 @@ textarea:focus-visible {
     font-weight: 700;
 }
 
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -660,6 +666,42 @@ textarea:focus-visible {
     color: var(--muted);
 }
 
+.log-page {
+    display: grid;
+    gap: 20px;
+}
+
+.log-table-wrap {
+    overflow-x: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.log-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.log-table th,
+.log-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+}
+
+.log-table th {
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.log-table tr:last-child td {
+    border-bottom: 0;
+}
+
 form.is-submitting button[type="submit"] {
     opacity: 0.72;
     pointer-events: none;
@@ -711,6 +753,10 @@ form.is-submitting button[type="submit"] {
     .profile-details {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .profile-actions {
+        width: 100%;
     }
 
     .page {
