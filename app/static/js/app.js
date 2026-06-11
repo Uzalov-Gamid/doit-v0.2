@@ -11,3 +11,9 @@ document.querySelectorAll('form').forEach((form) => {
         form.classList.add('is-submitting');
     });
 });
+
+document.querySelectorAll('.message-close').forEach((button) => {
+    button.addEventListener('click', () => {
+        button.closest('.message')?.remove();
+    });
+});

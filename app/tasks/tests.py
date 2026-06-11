@@ -175,11 +175,13 @@ class TaskCrudTests(TestCase):
         response = self.client.post(
             reverse('tasks:task_status', args=(task.pk,)),
             {'status': 'broken'},
+            follow=True,
         )
 
         task.refresh_from_db()
-        self.assertRedirects(response, reverse('tasks:dashboard'))
         self.assertEqual(task.status, Task.STATUS_NEW)
+        self.assertContains(response, 'Некорректный статус задачи.')
+        self.assertContains(response, 'message-error')
 
     def test_user_cannot_update_another_user_task(self):
         other = User.objects.create_user(username='other', password='StrongPass12345')
@@ -292,6 +294,24 @@ class TasksFrontendTests(TestCase):
         self.assertContains(response, reverse('tasks:task_delete', args=(self.task.pk,)))
         self.assertContains(response, reverse('tasks:task_status', args=(self.task.pk,)))
 
+    def test_dashboard_empty_state_without_tasks_has_primary_action(self):
+        Task.objects.all().delete()
+
+        response = self.client.get(reverse('tasks:dashboard'))
+
+        self.assertContains(response, 'Начало работы')
+        self.assertContains(response, 'Задач пока нет')
+        self.assertContains(response, 'Создать первую задачу')
+        self.assertContains(response, reverse('tasks:task_create'))
+
+    def test_dashboard_empty_state_for_filtered_results_has_reset_action(self):
+        response = self.client.get(reverse('tasks:dashboard'), {'q': 'нет такого текста'})
+
+        self.assertContains(response, 'Ничего не найдено')
+        self.assertContains(response, 'Нет задач по выбранным условиям')
+        self.assertContains(response, 'Сбросить фильтры')
+        self.assertContains(response, reverse('tasks:dashboard'))
+
     def test_dashboard_renders_task_status_and_due_date(self):
         response = self.client.get(reverse('tasks:dashboard'))
 
@@ -324,6 +344,22 @@ class TasksFrontendTests(TestCase):
         self.assertContains(response, 'Frontend задача')
         self.assertContains(response, 'Удалить')
 
+    def test_success_message_renders_after_task_create(self):
+        response = self.client.post(
+            reverse('tasks:task_create'),
+            {
+                'title': 'Сообщение успеха',
+                'description': '',
+                'status': Task.STATUS_NEW,
+                'due_date': '',
+            },
+            follow=True,
+        )
+
+        self.assertContains(response, 'Задача создана.')
+        self.assertContains(response, 'message-success')
+        self.assertContains(response, 'message-close')
+
 
 class StaticFrontendTests(SimpleTestCase):
     def test_css_file_exists_and_contains_responsive_rules(self):
@@ -336,6 +372,10 @@ class StaticFrontendTests(SimpleTestCase):
         self.assertIn('@media (max-width: 640px)', css)
         self.assertIn('.dashboard', css)
         self.assertIn('.task-card', css)
+        self.assertIn('.empty-state-action', css)
+        self.assertIn('.empty-actions', css)
+        self.assertIn('.filter-field', css)
+        self.assertIn('.message-error', css)
 
     def test_js_file_exists_and_contains_form_helpers(self):
         js_path = finders.find('js/app.js')
@@ -346,3 +386,4 @@ class StaticFrontendTests(SimpleTestCase):
 
         self.assertIn('status-form', js)
         self.assertIn('is-submitting', js)
+        self.assertIn('message-close', js)

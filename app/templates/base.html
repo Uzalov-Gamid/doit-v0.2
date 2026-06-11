@@ -26,9 +26,13 @@
 
     <main class="page">
       {% if messages %}
-        <div class="messages">
+        <div class="messages" aria-live="polite">
           {% for message in messages %}
-            <p class="message message-{{ message.tags }}">{{ message }}</p>
+            <div class="message message-{{ message.tags }}" role="status">
+              <span class="message-marker" aria-hidden="true"></span>
+              <p>{{ message }}</p>
+              <button class="message-close" type="button" aria-label="Закрыть сообщение">×</button>
+            </div>
           {% endfor %}
         </div>
       {% endif %}
