@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - DoIt v0.2{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-panel">
+    <h1>Вход</h1>
+    <form method="post" class="form">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <label for="{{ form.username.id_for_label }}">Логин</label>
+      {{ form.username }}
+      {{ form.username.errors }}
+
+      <label for="{{ form.password.id_for_label }}">Пароль</label>
+      {{ form.password }}
+      {{ form.password.errors }}
+
+      <button class="primary-button" type="submit">Войти</button>
+    </form>
+    <p class="auth-switch">Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,21 +1,40 @@
 {% load static %}
 <!doctype html>
 <html lang="ru">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}DoIt v0.2{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
     <header class="site-header">
-        <a class="site-logo" href="{% url 'tasks:dashboard' %}">DoIt v0.2</a>
+      <a class="site-logo" href="{% url 'tasks:dashboard' %}">DoIt v0.2</a>
+      <nav class="site-nav" aria-label="Основная навигация">
+        {% if user.is_authenticated %}
+          <span class="nav-user">{{ user.username }}</span>
+          <form class="logout-form" action="{% url 'accounts:logout' %}" method="post">
+            {% csrf_token %}
+            <button class="link-button" type="submit">Выйти</button>
+          </form>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Вход</a>
+          <a href="{% url 'accounts:register' %}">Регистрация</a>
+        {% endif %}
+      </nav>
     </header>
 
     <main class="page">
-        {% block content %}{% endblock %}
+      {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <p class="message message-{{ message.tags }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% block content %}{% endblock %}
     </main>
 
     <script src="{% static 'js/app.js' %}"></script>
-</body>
+  </body>
 </html>

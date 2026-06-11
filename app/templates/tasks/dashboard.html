@@ -3,8 +3,19 @@
 {% block title %}Личный кабинет - DoIt v0.2{% endblock %}
 
 {% block content %}
-<section class="empty-state">
-    <h1>Система управления задачами</h1>
-    <p>Структура Django-проекта готова. Следующий шаг - авторизация и личный кабинет.</p>
+<section class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <p class="eyebrow">DoIt v0.2</p>
+      <h1>Личный кабинет</h1>
+    </div>
+    <span class="role-badge">
+      {% if user.is_staff %}admin{% else %}user{% endif %}
+    </span>
+  </div>
+  <div class="empty-state">
+    <h2>Задачи появятся здесь</h2>
+    <p>Создание и управление задачами будет добавлено следующим этапом MVP.</p>
+  </div>
 </section>
 {% endblock %}
