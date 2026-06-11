@@ -32,11 +32,17 @@
 - Containerization: Docker, Docker Compose;
 - Version control: Git, GitHub.
 
-## Планируемая структура проекта
+## Структура проекта
 
 ```text
 .
 ├── app/                         # Django-проект и приложения
+│   ├── accounts/                # Регистрация, вход, профиль
+│   ├── activity/                # Журнал действий
+│   ├── config/                  # Настройки Django
+│   ├── static/                  # CSS и JavaScript
+│   ├── tasks/                   # Задачи и личный кабинет
+│   └── templates/               # Django templates
 ├── docs/                        # Документация проекта
 ├── .env.example                 # Пример переменных окружения
 ├── .gitignore                   # Исключения для Git
