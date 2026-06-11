@@ -17,6 +17,27 @@
     </div>
   </div>
 
+  <section class="profile-summary" aria-label="Профиль пользователя">
+    <div>
+      <p class="eyebrow">Профиль</p>
+      <h2>{{ user.username }}</h2>
+      <p>{{ user.email|default:"Email не указан" }}</p>
+    </div>
+    <dl class="profile-details">
+      <div>
+        <dt>Роль</dt>
+        <dd>{% if user.is_staff %}admin{% else %}user{% endif %}</dd>
+      </div>
+      <div>
+        <dt>Активность</dt>
+        <dd>{% if user.is_active %}активен{% else %}отключен{% endif %}</dd>
+      </div>
+    </dl>
+    {% if user.is_staff %}
+      <a class="secondary-button" href="/admin/">Django admin</a>
+    {% endif %}
+  </section>
+
   <section class="stats-grid" aria-label="Статистика задач">
     <div class="stat-item">
       <span>{{ stats.total }}</span>
