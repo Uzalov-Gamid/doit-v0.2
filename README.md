@@ -193,6 +193,22 @@ docker-compose exec web python manage.py check
 docker-compose exec web python manage.py test accounts tasks activity
 ```
 
+## Настройки безопасности
+
+Основные настройки задаются через `.env`:
+
+- `DJANGO_SECRET_KEY` - секретный ключ Django, в реальном проекте должен быть уникальным;
+- `DJANGO_DEBUG` - режим отладки, для сдачи и локальной разработки может быть `True`;
+- `DJANGO_ALLOWED_HOSTS` - список разрешенных хостов через запятую;
+- `POSTGRES_PASSWORD` - пароль пользователя PostgreSQL.
+
+В проекте включены базовые cookie-настройки:
+
+- `SESSION_COOKIE_HTTPONLY=True`;
+- `CSRF_COOKIE_HTTPONLY=True`;
+- `SESSION_COOKIE_SAMESITE=Lax`;
+- `CSRF_COOKIE_SAMESITE=Lax`.
+
 ## Журналирование
 
 В журнал действий записываются:

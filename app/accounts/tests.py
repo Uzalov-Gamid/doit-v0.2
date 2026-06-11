@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.test import SimpleTestCase
 from django.test import TestCase
 from django.urls import reverse
 
@@ -101,3 +103,45 @@ class AccountsFrontendTests(TestCase):
         self.assertContains(response, 'name="password1"')
         self.assertContains(response, 'name="password2"')
         self.assertContains(response, reverse('accounts:login'))
+
+
+class AdminAccessTests(TestCase):
+    def test_anonymous_user_is_redirected_from_admin(self):
+        response = self.client.get(reverse('admin:index'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response['Location'])
+
+    def test_regular_user_is_redirected_from_admin(self):
+        user = User.objects.create_user(username='student', password='StrongPass12345')
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('admin:index'))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/admin/login/', response['Location'])
+
+    def test_superuser_can_open_admin(self):
+        admin = User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='StrongPass12345',
+        )
+        self.client.force_login(admin)
+
+        response = self.client.get(reverse('admin:index'))
+
+        self.assertEqual(response.status_code, 200)
+
+
+class SecuritySettingsTests(SimpleTestCase):
+    def test_auth_redirect_settings_are_configured(self):
+        self.assertEqual(settings.LOGIN_URL, 'accounts:login')
+        self.assertEqual(settings.LOGIN_REDIRECT_URL, 'tasks:dashboard')
+        self.assertEqual(settings.LOGOUT_REDIRECT_URL, 'accounts:login')
+
+    def test_cookie_security_defaults_are_enabled(self):
+        self.assertTrue(settings.SESSION_COOKIE_HTTPONLY)
+        self.assertTrue(settings.CSRF_COOKIE_HTTPONLY)
+        self.assertEqual(settings.SESSION_COOKIE_SAMESITE, 'Lax')
+        self.assertEqual(settings.CSRF_COOKIE_SAMESITE, 'Lax')

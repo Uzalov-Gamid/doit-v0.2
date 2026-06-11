@@ -265,6 +265,45 @@ class TaskCrudTests(TestCase):
 
         self.assertRedirects(response, f"{reverse('accounts:login')}?next={reverse('tasks:task_create')}")
 
+    def test_anonymous_user_is_redirected_from_task_update(self):
+        task = Task.objects.create(user=self.user, title='Закрытая задача')
+        self.client.logout()
+
+        response = self.client.get(reverse('tasks:task_update', args=(task.pk,)))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('accounts:login')}?next={reverse('tasks:task_update', args=(task.pk,))}",
+        )
+
+    def test_anonymous_user_is_redirected_from_task_delete(self):
+        task = Task.objects.create(user=self.user, title='Закрытая задача')
+        self.client.logout()
+
+        response = self.client.post(reverse('tasks:task_delete', args=(task.pk,)))
+
+        self.assertRedirects(
+            response,
+            f"{reverse('accounts:login')}?next={reverse('tasks:task_delete', args=(task.pk,))}",
+        )
+        self.assertTrue(Task.objects.filter(pk=task.pk).exists())
+
+    def test_anonymous_user_is_redirected_from_status_change(self):
+        task = Task.objects.create(user=self.user, title='Закрытая задача', status=Task.STATUS_NEW)
+        self.client.logout()
+
+        response = self.client.post(
+            reverse('tasks:task_status', args=(task.pk,)),
+            {'status': Task.STATUS_DONE},
+        )
+
+        task.refresh_from_db()
+        self.assertRedirects(
+            response,
+            f"{reverse('accounts:login')}?next={reverse('tasks:task_status', args=(task.pk,))}",
+        )
+        self.assertEqual(task.status, Task.STATUS_NEW)
+
 
 class TaskSearchAndStatsTests(TestCase):
     def setUp(self):
