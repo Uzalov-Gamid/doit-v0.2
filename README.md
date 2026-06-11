@@ -251,6 +251,7 @@ docker-compose exec web python manage.py test accounts tasks activity
 - исходный код проекта;
 - README с инструкцией запуска;
 - техническое задание;
+- сценарий демонстрации: `docs/demo-scenario.md`;
 - GitHub-репозиторий с историей коммитов;
 - список задач в GitHub Issues;
 - демонстрация работы MVP.
