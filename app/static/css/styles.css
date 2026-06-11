@@ -232,6 +232,72 @@ body {
     font-weight: 700;
 }
 
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.stat-item {
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.stat-item span {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.stat-item p {
+    margin: 4px 0 0;
+    color: var(--muted);
+}
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: auto minmax(180px, 1fr) auto minmax(160px, 220px) auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+.filter-bar label {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.filter-bar input,
+.filter-bar select {
+    min-height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+}
+
+.filter-bar button {
+    min-height: 40px;
+    padding: 0 14px;
+    background: var(--accent);
+    border: 0;
+    border-radius: 6px;
+    color: #ffffff;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+}
+
+.filter-bar a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
 .empty-state {
     padding: 32px;
     background: var(--panel);
@@ -405,6 +471,14 @@ body {
     .dashboard-actions,
     .form-actions {
         flex-wrap: wrap;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .filter-bar {
+        grid-template-columns: 1fr;
     }
 
     .page {

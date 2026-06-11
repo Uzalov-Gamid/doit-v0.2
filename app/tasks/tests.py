@@ -97,3 +97,37 @@ class TaskCrudTests(TestCase):
         response = self.client.get(reverse('tasks:task_update', args=(task.pk,)))
 
         self.assertEqual(response.status_code, 404)
+
+
+class TaskSearchAndStatsTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='student', password='StrongPass12345')
+        self.client.force_login(self.user)
+        Task.objects.create(user=self.user, title='Купить продукты', status=Task.STATUS_NEW)
+        Task.objects.create(
+            user=self.user,
+            title='Учебный отчет',
+            description='Подготовить документацию',
+            status=Task.STATUS_IN_PROGRESS,
+        )
+        Task.objects.create(user=self.user, title='Закрытая задача', status=Task.STATUS_DONE)
+
+    def test_user_can_search_tasks(self):
+        response = self.client.get(reverse('tasks:dashboard'), {'q': 'отчет'})
+
+        self.assertContains(response, 'Учебный отчет')
+        self.assertNotContains(response, 'Купить продукты')
+
+    def test_user_can_filter_tasks_by_status(self):
+        response = self.client.get(reverse('tasks:dashboard'), {'status': Task.STATUS_DONE})
+
+        self.assertContains(response, 'Закрытая задача')
+        self.assertNotContains(response, 'Учебный отчет')
+
+    def test_dashboard_shows_task_statistics(self):
+        response = self.client.get(reverse('tasks:dashboard'))
+
+        self.assertEqual(response.context['stats']['total'], 3)
+        self.assertEqual(response.context['stats']['new'], 1)
+        self.assertEqual(response.context['stats']['in_progress'], 1)
+        self.assertEqual(response.context['stats']['done'], 1)

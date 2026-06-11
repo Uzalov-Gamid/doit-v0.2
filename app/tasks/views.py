@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
@@ -12,8 +13,32 @@ from .models import Task
 
 @login_required
 def dashboard(request):
-    tasks = Task.objects.filter(user=request.user)
-    return render(request, 'tasks/dashboard.html', {'tasks': tasks})
+    base_tasks = Task.objects.filter(user=request.user)
+    tasks = base_tasks
+    query = request.GET.get('q', '').strip()
+    status = request.GET.get('status', '').strip()
+
+    if query:
+        tasks = tasks.filter(Q(title__icontains=query) | Q(description__icontains=query))
+
+    if status in dict(Task.STATUS_CHOICES):
+        tasks = tasks.filter(status=status)
+
+    stats = {
+        'total': base_tasks.count(),
+        'new': base_tasks.filter(status=Task.STATUS_NEW).count(),
+        'in_progress': base_tasks.filter(status=Task.STATUS_IN_PROGRESS).count(),
+        'done': base_tasks.filter(status=Task.STATUS_DONE).count(),
+    }
+
+    context = {
+        'tasks': tasks,
+        'stats': stats,
+        'query': query,
+        'selected_status': status,
+        'status_choices': Task.STATUS_CHOICES,
+    }
+    return render(request, 'tasks/dashboard.html', context)
 
 
 class UserTaskMixin(LoginRequiredMixin):
